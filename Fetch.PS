@@ -1,0 +1,21 @@
+# This script will dump everything from $remote_path into local dir in a relative 
+# Directory structure
+
+# Remote path to scan 
+$remote_path = "/sdcard/"
+
+# Get all files from a path
+$files = adb shell su -c "find $remote_path -type f"
+
+# Fetch stuff
+foreach ($file in ($files  | where{$_ -ne ""})) {
+	$dest = $file.Replace($remote_path,"")
+	$dest_dir =  $dest | Split-Path -Parent
+	$filename = $file | Split-Path -Leaf
+	
+	if ($dest_dir) {
+		New-Item -ItemType Directory -Force -Path $dest_dir -ErrorAction SilentlyContinue
+	}
+	
+	adb pull $file $dest
+}
